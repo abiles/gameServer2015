@@ -91,12 +91,21 @@ bool ClientSession::PostRecv() const
 	recvContext->mWsaBuf.len = BUFSIZE;
 
 	DWORD recvBytes = 0;
+	int ret = 0;
 
-	WSARecv(mSocket
+	if(ret = WSARecv(mSocket
 		  , &(recvContext->mWsaBuf)
 		  , 1, &recvBytes, &flag
 		  , &(recvContext->mOverlapped)
-		  , NULL);
+		  , NULL));
+
+	if (SOCKET_ERROR == ret)
+	{
+		if (WSA_IO_PENDING != GetLastError())
+		{
+			return false;
+		}
+	}
 
 
 	return true;
@@ -118,12 +127,21 @@ bool ClientSession::PostSend(const char* buf, int len) const
 	//TODO: WSASend 사용하여 구현할 것
 	DWORD flag = 0;
 	DWORD sendBytes = 0;
+	int ret = 0;
 
-	WSASend(mSocket
+	if(ret = WSASend(mSocket
 		, &(sendContext->mWsaBuf)
 		, 1, &sendBytes, flag
 		, &(sendContext->mOverlapped)
-		, NULL);
+		, NULL));
+
+	if (SOCKET_ERROR == ret)
+	{
+		if (WSA_IO_PENDING != GetLastError())
+		{
+			return false;
+		}
+	}
 
 	return true;
 }

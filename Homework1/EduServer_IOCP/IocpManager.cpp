@@ -45,7 +45,7 @@ bool IocpManager::Initialize()
 	SOCKADDR_IN listenAddr = { 0, };
 	listenAddr.sin_family = AF_INET;
 	listenAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	listenAddr.sin_port = htons(9001);
+	listenAddr.sin_port = htons(LISTEN_PORT);
 	
 	int opt = 1;
 	setsockopt(mListenSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(int));
@@ -193,7 +193,7 @@ bool IocpManager::ReceiveCompletion(const ClientSession* client, OverlappedIOCon
 
 	/// echo back 처리 client->PostSend()사용.
 
-	if (!client->PostSend(context->mBuffer, dwTransferred))
+	if (false == client->PostSend(context->mBuffer, dwTransferred))
 	{
 		delete context;
 		return false;
