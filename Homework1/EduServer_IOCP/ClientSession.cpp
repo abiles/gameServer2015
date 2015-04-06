@@ -53,7 +53,6 @@ void ClientSession::Disconnect(DisconnectReason dr)
 	//TODO: 이 영역 lock으로 할 것
 	FastSpinlockGuard lockGuard(mLock);
 
-
 	if ( !IsConnected() )
 		return ;
 	
@@ -93,16 +92,17 @@ bool ClientSession::PostRecv() const
 	DWORD recvBytes = 0;
 	int ret = 0;
 
-	if(ret = WSARecv(mSocket
+	ret = WSARecv(mSocket
 		  , &(recvContext->mWsaBuf)
 		  , 1, &recvBytes, &flag
-		  , &(recvContext->mOverlapped)
-		  , NULL));
+		  , (LPOVERLAPPED) recvContext
+		  , NULL);
 
 	if (SOCKET_ERROR == ret)
 	{
 		if (WSA_IO_PENDING != GetLastError())
 		{
+	
 			return false;
 		}
 	}
@@ -122,18 +122,18 @@ bool ClientSession::PostSend(const char* buf, int len) const
 	memcpy_s(sendContext->mBuffer, BUFSIZE, buf, len);
 
 	sendContext->mWsaBuf.buf = sendContext->mBuffer;
-	sendContext->mWsaBuf.len = BUFSIZE;
+	sendContext->mWsaBuf.len = len;
 
 	//TODO: WSASend 사용하여 구현할 것
 	DWORD flag = 0;
 	DWORD sendBytes = 0;
 	int ret = 0;
 
-	if(ret = WSASend(mSocket
+	ret = WSASend(mSocket
 		, &(sendContext->mWsaBuf)
 		, 1, &sendBytes, flag
-		, &(sendContext->mOverlapped)
-		, NULL));
+		, (LPOVERLAPPED)sendContext
+		, NULL);
 
 	if (SOCKET_ERROR == ret)
 	{

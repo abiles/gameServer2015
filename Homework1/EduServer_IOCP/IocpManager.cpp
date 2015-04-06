@@ -143,7 +143,7 @@ unsigned int WINAPI IocpManager::IoWorkerThread(LPVOID lpParam)
 								, (LPOVERLAPPED*)&context
 								, GQCS_TIMEOUT);
 		/// check time out first 
-		if (ret == 0 && GetLastError()==WAIT_TIMEOUT)
+		if (ret == 0 && GetLastError() == WAIT_TIMEOUT)
 			continue;
 
 		if (ret == 0 || dwTransferred == 0)
@@ -158,6 +158,7 @@ unsigned int WINAPI IocpManager::IoWorkerThread(LPVOID lpParam)
 		{
 			asCompletionKey->Disconnect(DR_CONTEXT_ERROR);
 			GSessionManager->DeleteClientSession(asCompletionKey);
+			continue;
 		}
 
 		bool completionOk = true;
