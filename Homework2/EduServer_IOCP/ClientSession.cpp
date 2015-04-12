@@ -18,6 +18,7 @@ ClientSession::ClientSession() : mBuffer(BUFSIZE), mConnected(0), mRefCount(0)
 {
 	memset(&mClientAddr, 0, sizeof(SOCKADDR_IN));
 	mSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+	memset(mOutBuffer, 0, sizeof(mOutBuffer));
 }
 
 
@@ -38,6 +39,7 @@ void ClientSession::SessionReset()
 	{
 		printf_s("[DEBUG] setsockopt linger option error: %d\n", GetLastError());
 	}
+	
 	closesocket(mSocket);
 
 	mSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
@@ -48,8 +50,26 @@ bool ClientSession::PostAccept()
 	CRASH_ASSERT(LThreadType == THREAD_MAIN);
 
 	OverlappedAcceptContext* acceptContext = new OverlappedAcceptContext(this);
+	
 
 	//TODO : AccpetEx를 이용한 구현.
+	SOCKET* pListenSocket = GIocpManager->GetListenSocket();
+	if (false == NewAcceptEx(*pListenSocket, mSocket, mOutBuffer,
+		0,
+		sizeof(SOCKADDR_IN)+16,
+		sizeof(SOCKADDR_IN)+16,
+		nullptr,
+		(LPOVERLAPPED)acceptContext))
+	{
+		if (ERROR_IO_PENDING != WSAGetLastError())
+		{
+			DeleteIoContext(acceptContext);
+			printf_s("[DEBUG] PostAccept error: %d\n", GetLastError());
+			
+			return false;
+		}
+	}
+
 
 	return true;
 }
@@ -66,6 +86,8 @@ void ClientSession::AcceptCompletion()
 	}
 
 	bool resultOk = true;
+	
+	
 	do 
 	{
 		if (SOCKET_ERROR == setsockopt(mSocket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)GIocpManager->GetListenSocket(), sizeof(SOCKET)))
@@ -101,7 +123,14 @@ void ClientSession::AcceptCompletion()
 
 		//TODO: CreateIoCompletionPort를 이용한 소켓 연결
 		//HANDLE handle = CreateIoCompletionPort(...);
+		HANDLE handle = CreateIoCompletionPort((HANDLE)mSocket, GIocpManager->GetComletionPort(), (ULONG_PTR)this, 0);
 		
+		if (NULL == handle)
+		{
+			printf_s("[DEBUG] CreateIoCompletionPort error: %d\n", GetLastError());
+			resultOk = false;
+			break;
+		}
 
 	} while (false);
 
@@ -130,6 +159,17 @@ void ClientSession::DisconnectRequest(DisconnectReason dr)
 	OverlappedDisconnectContext* context = new OverlappedDisconnectContext(this, dr);
 
 	//TODO: DisconnectEx를 이용한 연결 끊기 요청
+	// TF_REUSE_SOCKET을 써야하나?
+	if (false == NewDisconnectEx(mSocket, context, NULL, 0))
+	{
+		if (ERROR_IO_PENDING != WSAGetLastError())
+		{
+			DeleteIoContext(context);
+			printf_s("[DEBUG] DisconnectEx error: %d\n", GetLastError());
+
+			return;
+		}
+	}
 }
 
 void ClientSession::DisconnectCompletion(DisconnectReason dr)
@@ -149,7 +189,22 @@ bool ClientSession::PreRecv()
 	OverlappedPreRecvContext* recvContext = new OverlappedPreRecvContext(this);
 
 	//TODO: zero-byte recv 구현
+	recvContext->mWsaBuf.buf = nullptr;
+	recvContext->mWsaBuf.len = 0;
 
+	DWORD flags = 0;
+	DWORD recvByte = 0;
+
+	if (SOCKET_ERROR == WSARecv(mSocket, &recvContext->mWsaBuf, 1, &recvByte, &flags
+						 	   ,(LPWSAOVERLAPPED)recvContext, nullptr))
+	{
+		if (WSAGetLastError() != WSA_IO_PENDING)
+		{
+			DeleteIoContext(recvContext);
+			printf_s("ClientSession::PreRecv Error : %d\n", GetLastError());
+			return false;
+		}
+	}
 
 	return true;
 }

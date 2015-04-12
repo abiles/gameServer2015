@@ -86,6 +86,7 @@ public:
 
 	void	SessionReset();
 
+	//????
 	bool	IsConnected() const { return !!mConnected; }
 
 	bool	PostAccept();
@@ -108,6 +109,8 @@ public:
 	void	SetSocket(SOCKET sock) { mSocket = sock; }
 	SOCKET	GetSocket() const { return mSocket;  }
 
+	char*   GetOutBuffer()  { return mOutBuffer; }
+
 private:
 	
 	SOCKET			mSocket ;
@@ -117,6 +120,8 @@ private:
 	FastSpinlock	mBufferLock;
 
 	CircularBuffer	mBuffer;
+
+	char            mOutBuffer[256];
 
 	volatile long	mRefCount;
 	volatile long	mConnected;

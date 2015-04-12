@@ -58,6 +58,15 @@ bool SessionManager::AcceptSessions()
 		// ½ÇÆÐ½Ã false
 		//if (false == newClient->PostAccept())
 		//	return false;
+		ClientSession* pCurrentClient = mFreeSessionList.front();
+		mFreeSessionList.pop_front();
+
+		if (false == pCurrentClient->PostAccept())
+			return false;
+		
+		pCurrentClient->AddRef();
+		++mCurrentIssueCount;
+
 	}
 
 

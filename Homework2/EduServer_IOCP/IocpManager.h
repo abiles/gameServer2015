@@ -40,6 +40,8 @@ private:
 	int		mIoThreadCount;
 
 	SOCKET	mListenSocket;
+
+	LPFN_ACCEPTEX mLpfnAcceptEx;
 };
 
 extern __declspec(thread) int LIoThreadId;
