@@ -8,6 +8,11 @@ struct OverlappedRecvContext;
 struct OverlappedDisconnectContext;
 struct OverlappedAcceptContext;
 
+
+BOOL NewDisconnectEx(SOCKET hSocket, LPOVERLAPPED lpOverlapped, DWORD dwFlags, DWORD reserved);
+BOOL NewAcceptEx(SOCKET sListenSocket, SOCKET sAcceptSocket, PVOID lpOutputBuffer, DWORD dwReceiveDataLength,
+	DWORD dwLocalAddressLength, DWORD dwRemoteAddressLength, LPDWORD lpdwBytesReceived, LPOVERLAPPED lpOverlapped);
+
 class IocpManager
 {
 public:

@@ -160,7 +160,7 @@ void ClientSession::DisconnectRequest(DisconnectReason dr)
 
 	//TODO: DisconnectEx를 이용한 연결 끊기 요청
 	// TF_REUSE_SOCKET을 써야하나?
-	if (false == NewDisconnectEx(mSocket, context, NULL, 0))
+	if (false == NewDisconnectEx(mSocket, (LPOVERLAPPED)context, NULL, 0))
 	{
 		if (ERROR_IO_PENDING != WSAGetLastError())
 		{
