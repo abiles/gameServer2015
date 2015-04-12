@@ -5,7 +5,6 @@
 #include "IocpManager.h"
 #include "SessionManager.h"
 
-char acceptBuffer[128];
 
 OverlappedIOContext::OverlappedIOContext(ClientSession* owner, IOType ioType) 
 : mSessionObject(owner), mIoType(ioType)
