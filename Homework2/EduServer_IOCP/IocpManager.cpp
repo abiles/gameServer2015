@@ -10,29 +10,21 @@
 __declspec(thread) int LIoThreadId = 0;
 IocpManager* GIocpManager = nullptr;
 LPFN_ACCEPTEX GAcceptEX = nullptr;
-GUID GguidAcceptEx = WSAID_ACCEPTEX;
+GUID GGUIDAcceptEx = WSAID_ACCEPTEX;
 
-LPFN_DISCONNECTEX GDisConnectEX = nullptr;
-GUID GguidDisConnectEx = WSAID_DISCONNECTEX;
+LPFN_DISCONNECTEX GDisconnectEX = nullptr;
+GUID GGUIDDisconnectEx = WSAID_DISCONNECTEX;
 
 
 //TODO AcceptEx DisconnectEx 함수 사용할 수 있도록 구현.
 
 BOOL NewDisconnectEx(SOCKET hSocket, LPOVERLAPPED lpOverlapped, DWORD dwFlags, DWORD reserved)
 {
-	if (GDisConnectEX == nullptr)
+	if (GDisconnectEX == nullptr)
 		return FALSE;
 
-	if (false == GDisConnectEX(hSocket, lpOverlapped, dwFlags, reserved))
-	{
-		if (ERROR_IO_PENDING == WSAGetLastError())
-			return TRUE;
-		else
-			return FALSE;
-	}
-
-	//return ...
-	return TRUE;
+	return GDisconnectEX(hSocket, lpOverlapped, dwFlags, reserved);
+	
 }
 
 // 참고: 최신 버전의 Windows SDK에서는 그냥 구현되어 있음
@@ -42,23 +34,16 @@ BOOL NewAcceptEx(SOCKET sListenSocket, SOCKET sAcceptSocket, PVOID lpOutputBuffe
 	if (GAcceptEX == nullptr)
 		return FALSE;
 	
-	if (FALSE == GAcceptEX(sListenSocket, sAcceptSocket, lpOutputBuffer
+	return GAcceptEX(sListenSocket, sAcceptSocket, lpOutputBuffer
 		, dwReceiveDataLength, dwLocalAddressLength
-		, dwRemoteAddressLength, nullptr, lpOverlapped))
-	{
-		if (ERROR_IO_PENDING == WSAGetLastError())
-			return TRUE;
-		else
-			return FALSE;
-	}
-
-	return TRUE;
+		, dwRemoteAddressLength, lpdwBytesReceived, lpOverlapped);
+	
 }
 
 
 
 IocpManager::IocpManager() : mCompletionPort(NULL), mIoThreadCount(2), mListenSocket(NULL)
-						   , mLpfnAcceptEx(nullptr)
+						   
 {	
 }
 
@@ -116,7 +101,7 @@ bool IocpManager::Initialize()
 	int iResult = 0;
 	// acceptEx 만드는 부분
 	iResult = WSAIoctl(mListenSocket, SIO_GET_EXTENSION_FUNCTION_POINTER,
-		&GguidAcceptEx, sizeof(GUID),
+		&GGUIDAcceptEx, sizeof(GUID),
 		&GAcceptEX, sizeof(LPFN_ACCEPTEX),
 		&dwBytes, nullptr, nullptr);
 
@@ -124,8 +109,8 @@ bool IocpManager::Initialize()
 		return false;
 
 	iResult = WSAIoctl(mListenSocket, SIO_GET_EXTENSION_FUNCTION_POINTER,
-		&GguidDisConnectEx, sizeof(GUID),
-		&GDisConnectEX, sizeof(LPFN_DISCONNECTEX),
+		&GGUIDDisconnectEx, sizeof(GUID),
+		&GDisconnectEX, sizeof(LPFN_DISCONNECTEX),
 		&dwBytes, nullptr, nullptr);
 
 	if (iResult == SOCKET_ERROR)
@@ -185,7 +170,7 @@ void IocpManager::Finalize()
 unsigned int WINAPI IocpManager::IoWorkerThread(LPVOID lpParam)
 {
 	LThreadType = THREAD_IO_WORKER;
-
+		
 	LIoThreadId = reinterpret_cast<int>(lpParam);
 	HANDLE hComletionPort = GIocpManager->GetComletionPort();
 
@@ -268,7 +253,7 @@ unsigned int WINAPI IocpManager::IoWorkerThread(LPVOID lpParam)
 bool IocpManager::PreReceiveCompletion(ClientSession* client, OverlappedPreRecvContext* context, DWORD dwTransferred)
 {
 	/// real receive...
-	return client->PreRecv();
+	return client->PostRecv();
 }
 
 bool IocpManager::ReceiveCompletion(ClientSession* client, OverlappedRecvContext* context, DWORD dwTransferred)

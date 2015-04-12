@@ -5,6 +5,7 @@
 #include "IocpManager.h"
 #include "SessionManager.h"
 
+char acceptBuffer[128];
 
 OverlappedIOContext::OverlappedIOContext(ClientSession* owner, IOType ioType) 
 : mSessionObject(owner), mIoType(ioType)
@@ -53,12 +54,14 @@ bool ClientSession::PostAccept()
 	
 
 	//TODO : AccpetEx를 이용한 구현.
+	DWORD recvByte = 0;
 	SOCKET* pListenSocket = GIocpManager->GetListenSocket();
+
 	if (false == NewAcceptEx(*pListenSocket, mSocket, mOutBuffer,
 		0,
 		sizeof(SOCKADDR_IN)+16,
 		sizeof(SOCKADDR_IN)+16,
-		nullptr,
+		&recvByte,
 		(LPOVERLAPPED)acceptContext))
 	{
 		if (ERROR_IO_PENDING != WSAGetLastError())
@@ -69,7 +72,7 @@ bool ClientSession::PostAccept()
 			return false;
 		}
 	}
-
+	
 
 	return true;
 }
@@ -147,6 +150,7 @@ void ClientSession::AcceptCompletion()
 	{
 		printf_s("[DEBUG] PreRecv error: %d\n", GetLastError());
 	}
+	
 }
 
 
