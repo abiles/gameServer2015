@@ -127,7 +127,9 @@ void ClientSession::AcceptCompletion()
 		//HANDLE handle = CreateIoCompletionPort(...);
 		HANDLE handle = CreateIoCompletionPort((HANDLE)mSocket, GIocpManager->GetComletionPort(), (ULONG_PTR)this, 0);
 		
-		if (NULL == handle)
+		//if (NULL == handle)
+
+		if (handle != GIocpManager->GetComletionPort()) ///# 이렇게 체크 해야 한다.
 		{
 			printf_s("[DEBUG] CreateIoCompletionPort error: %d\n", GetLastError());
 			resultOk = false;
@@ -163,7 +165,7 @@ void ClientSession::DisconnectRequest(DisconnectReason dr)
 
 	//TODO: DisconnectEx를 이용한 연결 끊기 요청
 	// TF_REUSE_SOCKET을 써야하나?
-	if (false == NewDisconnectEx(mSocket, (LPOVERLAPPED)context, NULL, 0))
+	if (false == NewDisconnectEx(mSocket, (LPOVERLAPPED)context, TF_REUSE_SOCKET, 0)) ///# 이렇게 옵션 ^^
 	{
 		if (ERROR_IO_PENDING != WSAGetLastError())
 		{
