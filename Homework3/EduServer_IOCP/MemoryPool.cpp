@@ -8,12 +8,28 @@ MemoryPool* GMemoryPool = nullptr;
 SmallSizeMemoryPool::SmallSizeMemoryPool(DWORD allocSize) : mAllocSize(allocSize)
 {
 	CRASH_ASSERT(allocSize > MEMORY_ALLOCATION_ALIGNMENT);
+	
+	// SLIST 헤더 초기화
+	// 모든 리스트의 항목들은 MEMORY_ALLOCATION_ALIGNMENT으로 정렬되어 있어야하고
+	// 정렬안되어 있으면 unpredictable result 발생
 	InitializeSListHead(&mFreeList);
 }
 
 MemAllocInfo* SmallSizeMemoryPool::Pop()
 {
-	MemAllocInfo* mem = 0;//TODO: InterlockedPopEntrySList를 이용하여 mFreeList에서 pop으로 메모리를 가져올 수 있는지 확인. 
+	MemAllocInfo* mem = 0;
+	
+	//TODO: InterlockedPopEntrySList를 이용하여 mFreeList에서 pop으로 메모리를 가져올 수 있는지 확인. 
+
+	// 싱글 링크드 리스트 앞쪽 한 item 지움, list로의 접근이 동기화 됨
+	// return value는 제거된 item의 포인터, 비어 있으면 NULL을 return
+	// 리스트가 남아 잇는 메모리를 가지고 있다면?
+	// return 값이 null이라는게 할당할 메모리가 없다는 뜻이 되겠지
+	if (NULL == InterlockedPopEntrySList(&mFreeList));
+	{
+		// 어떻게 해주지? 
+		// 아직까지는 list에 뭐가 들어있는지 모르겠네
+	}
 
 	if (NULL == mem)
 	{
@@ -32,6 +48,7 @@ MemAllocInfo* SmallSizeMemoryPool::Pop()
 void SmallSizeMemoryPool::Push(MemAllocInfo* ptr)
 {
 	//TODO: InterlockedPushEntrySList를 이용하여 메모리풀에 (재사용을 위해) 반납.
+	//무엇을 반납?
 
 	InterlockedDecrement(&mAllocCount);
 }
