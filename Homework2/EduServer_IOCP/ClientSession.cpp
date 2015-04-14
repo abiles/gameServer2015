@@ -75,7 +75,7 @@ bool ClientSession::PostAccept()
 
 	return true;
 }
-
+	
 void ClientSession::AcceptCompletion()
 {
 	CRASH_ASSERT(LThreadType == THREAD_IO_WORKER);
