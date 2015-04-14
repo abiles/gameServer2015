@@ -61,6 +61,7 @@ private:
 	};
 
 	/// 원하는 크기의 메모리를 가지고 있는 풀에 O(1) access를 위한 테이블
+	
 	SmallSizeMemoryPool* mSmallSizeMemoryPoolTable[MAX_ALLOC_SIZE+1];
 
 };
