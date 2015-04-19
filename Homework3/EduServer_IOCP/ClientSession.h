@@ -40,28 +40,29 @@ struct OverlappedIOContext
 
 //TODO: 아래의 OverlappedXXXXContext는 ObjectPool<>을 사용하도록 수정
 
-struct OverlappedSendContext : public OverlappedIOContext
+struct OverlappedSendContext : public OverlappedIOContext, public ObjectPool<OverlappedSendContext>
 {
 	OverlappedSendContext(ClientSession* owner) : OverlappedIOContext(owner, IO_SEND)
 	{
+
 	}
 };
 
-struct OverlappedRecvContext : public OverlappedIOContext
+struct OverlappedRecvContext : public OverlappedIOContext, public ObjectPool<OverlappedRecvContext>
 {
 	OverlappedRecvContext(ClientSession* owner) : OverlappedIOContext(owner, IO_RECV)
 	{
 	}
 };
 
-struct OverlappedPreRecvContext : public OverlappedIOContext
+struct OverlappedPreRecvContext : public OverlappedIOContext, public ObjectPool<OverlappedPreRecvContext>
 {
 	OverlappedPreRecvContext(ClientSession* owner) : OverlappedIOContext(owner, IO_RECV_ZERO)
 	{
 	}
 };
 
-struct OverlappedDisconnectContext : public OverlappedIOContext
+struct OverlappedDisconnectContext : public OverlappedIOContext, public ObjectPool<OverlappedDisconnectContext>
 {
 	OverlappedDisconnectContext(ClientSession* owner, DisconnectReason dr) 
 	: OverlappedIOContext(owner, IO_DISCONNECT), mDisconnectReason(dr)
@@ -70,7 +71,7 @@ struct OverlappedDisconnectContext : public OverlappedIOContext
 	DisconnectReason mDisconnectReason;
 };
 
-struct OverlappedAcceptContext : public OverlappedIOContext
+struct OverlappedAcceptContext : public OverlappedIOContext, public ObjectPool<OverlappedAcceptContext>
 {
 	OverlappedAcceptContext(ClientSession* owner) : OverlappedIOContext(owner, IO_ACCEPT)
 	{}
@@ -80,7 +81,7 @@ struct OverlappedAcceptContext : public OverlappedIOContext
 void DeleteIoContext(OverlappedIOContext* context) ;
 
 //TODO: 아래의 ClientSession은 xnew/xdelete사용 가능하도록 클래스 정의 부분 수정
-class ClientSession
+class ClientSession : public PooledAllocatable
 {
 public:
 	ClientSession();

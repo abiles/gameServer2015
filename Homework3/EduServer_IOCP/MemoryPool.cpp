@@ -17,22 +17,18 @@ SmallSizeMemoryPool::SmallSizeMemoryPool(DWORD allocSize) : mAllocSize(allocSize
 
 MemAllocInfo* SmallSizeMemoryPool::Pop()
 {
-	MemAllocInfo* mem = 0;
+	MemAllocInfo* mem = nullptr;
 	
 	//TODO: InterlockedPopEntrySList를 이용하여 mFreeList에서 pop으로 메모리를 가져올 수 있는지 확인. 
 
 	// 싱글 링크드 리스트 앞쪽 한 item 지움, list로의 접근이 동기화 됨
 	// return value는 제거된 item의 포인터, 비어 있으면 NULL을 return
-	// 리스트가 남아 잇는 메모리를 가지고 있는 거라면??
 	// return 값이 null이라는게 할당할 메모리가 없다는 뜻이 되겠지
-	// 지금 list가 정확히 뭘가지고 있는지 모르겠음
+	// listhead가 있으면 pop 이후에 null을 리턴하지 않는듯
+	// head만 있는 상황에서는 head를 제거하지 않고 null을 리턴 하려나 
 
-	if (NULL == InterlockedPopEntrySList(&mFreeList));
-	{
-		// 어떻게 해주지? 
-		
-	}
-
+	mem = reinterpret_cast<MemAllocInfo*>(InterlockedPopEntrySList(&mFreeList));
+	
 	if (NULL == mem)
 	{
 		// 할당 불가능하면 직접 할당.
@@ -52,6 +48,9 @@ void SmallSizeMemoryPool::Push(MemAllocInfo* ptr)
 	//TODO: InterlockedPushEntrySList를 이용하여 메모리풀에 (재사용을 위해) 반납.
 	//무엇을 반납? => 메모리를 반납
 	//아직 정확히 모르겠지만 가리키는 부분을 어떻게 해주고 push해야 할 것같은데
+	
+
+	InterlockedPushEntrySList(&mFreeList, ptr);
 
 	InterlockedDecrement(&mAllocCount);
 }
@@ -73,12 +72,14 @@ MemoryPool::MemoryPool()
 	{
 		SmallSizeMemoryPool* pool = new SmallSizeMemoryPool(i);
 		
-		// 0번에는 헤더를 넣는듯
 		// 여기서 처음 한 사이클만 보면
 		// 일단 j==1 부터 j==32까지
 		// 위에서 만든 pool을 넣고 있다
 		// pooltable에서 1~32까지는 같은것을 가리키고 있다는 것
-		// 
+		// header랑 사이즈만 초기화된 pool을
+		// 관리하는 테이블의 1~32번가지 넣어주는 작업
+		// 이후에는 33~64애들은 크기가 64인 smallpool 가리킴
+		// 이 작업 반복... 등을 해준다
 		for (int j = recent+1; j <= i; ++j)
 		{
 			mSmallSizeMemoryPoolTable[j] = pool;
@@ -124,7 +125,8 @@ void* MemoryPool::Allocate(int size)
 	else
 	{
 		//TODO: SmallSizeMemoryPool에서 할당
-		//header = 
+		//header = ...;
+		header = mSmallSizeMemoryPoolTable[realAllocSize]->Pop();
 	}
 
 	return AttachMemAllocInfo(header, realAllocSize);
@@ -132,9 +134,11 @@ void* MemoryPool::Allocate(int size)
 
 void MemoryPool::Deallocate(void* ptr, long extraInfo)
 {
+	// realSize일 때 맨 앞에 위치를 가리키는 header
 	MemAllocInfo* header = DetachMemAllocInfo(ptr);
 	header->mExtraInfo = extraInfo; ///< 최근 할당에 관련된 정보 힌트
 	
+	// mAllocSize를 저장함
 	long realAllocSize = InterlockedExchange(&header->mAllocSize, 0); ///< 두번 해제 체크 위해
 	
 	CRASH_ASSERT(realAllocSize> 0);
@@ -146,6 +150,7 @@ void MemoryPool::Deallocate(void* ptr, long extraInfo)
 	else
 	{
 		//TODO: SmallSizeMemoryPool에 (재사용을 위해) push..
+		mSmallSizeMemoryPoolTable[realAllocSize]->Push(header);
 		
 	}
 }

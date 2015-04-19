@@ -6,13 +6,16 @@
 
 
 template <class TOBJECT, int ALLOC_COUNT = 100>
-class ObjectPool
+class ObjectPool : public ClassTypeLock<TOBJECT>
 {
 public:
+
+	// objectsize는 왜 인자로 받는걸까. 실제로 쓰는 곳이 없는데
 
 	static void* operator new(size_t objSize)
 	{
 		//TODO: TOBJECT 타입 단위로 lock 잠금
+		LockGuard typeLock;
 
 		if (!mFreeList)
 		{
@@ -29,6 +32,7 @@ public:
 				ppCurr = reinterpret_cast<uint8_t**>(pNext);
 			}
 
+			*ppCurr = nullptr;
 			mTotalAllocCount += ALLOC_COUNT;
 		}
 
@@ -42,6 +46,7 @@ public:
 	static void	operator delete(void* obj)
 	{
 		//TODO: TOBJECT 타입 단위로 lock 잠금
+		LockGuard typeLock;
 
 		CRASH_ASSERT(mCurrentUseCount > 0);
 
