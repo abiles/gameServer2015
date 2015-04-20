@@ -11,6 +11,7 @@ class ObjectPool : public ClassTypeLock<TOBJECT>
 public:
 
 	// objectsize는 왜 인자로 받는걸까. 실제로 쓰는 곳이 없는데
+	///# 수업시간에 다뤄보자
 
 	static void* operator new(size_t objSize)
 	{
