@@ -55,7 +55,7 @@ public:
 	void deallocate(T* ptr, size_t n)
 	{
 		//TODO: 메모리풀에 반납
-		GMemoryPool->Deallocate(ptr, n);
+		GMemoryPool->Deallocate(ptr, n); ///# n대신 0xDEADBEEF가 출동한다면?
 		
 		//free(ptr);
 	}

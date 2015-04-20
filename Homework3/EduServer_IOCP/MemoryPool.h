@@ -18,7 +18,7 @@ inline void* AttachMemAllocInfo(MemAllocInfo* header, int size)
 {
 	//TODO: header에 MemAllocInfo를 펼친 다음에 실제 앱에서 사용할 메모리 주소를 void*로 리턴... 실제 사용되는 예 및 DetachMemAllocInfo 참고.
 	
-	//replacement new를 쓰자
+	//replacement new를 쓰자 ///# 굿!
 	//메모리 공간만 가지고 있는 녀석에 내용 초기화 해서 넣어줌
 	//header는 메모리 공간만 있음
 	new(header)MemAllocInfo(size);
@@ -89,8 +89,10 @@ T* xnew(Args... arg)
 
 	//TODO: T* obj = xnew<T>(...); 처럼 사용할 수있도록 메모리풀에서 할당하고 생성자 불러주고 리턴.
 
-	void* alloc = nullptr; 
-	alloc = GMemoryPool->Allocate(sizeof(T));
+	//void* alloc = nullptr; 
+	//alloc = GMemoryPool->Allocate(sizeof(T));
+
+	void* alloc = GMemoryPool->Allocate(sizeof(T)); ///# 이렇게 한줄로 하면 될 것을..
 
 	//TODO: ... ...
 	new(alloc)T(arg...);
@@ -106,7 +108,7 @@ void xdelete(T* object)
 	//TODO: object의 소멸자 불러주고 메모리풀에 반납.
 	object->~T();
 
-	GMemoryPool->Deallocate((void*)object, -1);
+	GMemoryPool->Deallocate((void*)object, -1); ///# -1을 넣어준 이유는?
 
 
 }

@@ -47,10 +47,10 @@ void SmallSizeMemoryPool::Push(MemAllocInfo* ptr)
 {
 	//TODO: InterlockedPushEntrySList를 이용하여 메모리풀에 (재사용을 위해) 반납.
 	//무엇을 반납? => 메모리를 반납
-	//아직 정확히 모르겠지만 가리키는 부분을 어떻게 해주고 push해야 할 것같은데
+	//아직 정확히 모르겠지만 가리키는 부분을 어떻게 해주고 push해야 할 것같은데 ///# 코드들 보다 보면 Push전에 그 과정이 있지?
 	
 
-	InterlockedPushEntrySList(&mFreeList, ptr);
+	InterlockedPushEntrySList(&mFreeList, (PSLIST_ENTRY)ptr); ///# 명백히 하려면 이렇게..
 
 	InterlockedDecrement(&mAllocCount);
 }
@@ -99,7 +99,7 @@ MemoryPool::MemoryPool()
 
 	//TODO: [2048, 4096] 범위 내에서 256바이트 단위로 SmallSizeMemoryPool을 할당하고 
 	//TODO: mSmallSizeMemoryPoolTable에 O(1) access가 가능하도록 SmallSizeMemoryPool의 주소 기록
-	for (int i = 2048; i < 4096; i += 256)
+	for (int i = 2048; i < 4096; i += 256) ///# [2048, 4096)가 아니라 [2048, 4096]면 i<=4096이 되어야겠지?
 	{
 		SmallSizeMemoryPool* pool = new SmallSizeMemoryPool(i);
 		for (int j = recent + 1; j <= i; ++j)
