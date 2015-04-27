@@ -12,6 +12,13 @@ public:
 	{}
 	virtual ~SyncExecutable() {}
 
+
+	// player reset 부분을 dosync를 이용해서 부르고 있는데
+	// 바로 mPlayer->reset으로 하지 않는 이유는 무엇일까?
+	// 아 lock이 있구나 
+	// lock으로 보호하면서 뭔가 하고 싶은 녀석인 경우에 
+	// dosync 함수로 불러서 처리하는 구나 
+
 	template <class R, class T, class... Args>
 	R DoSync(R (T::*memfunc)(Args...), Args... args)
 	{
