@@ -17,10 +17,10 @@ public:
 	{
 		static_assert(true == std::is_convertible<T, SyncExecutable>::value, "T should be derived from SyncExecutable");
 
-		EnterLock();
+		
 		//TODO: mLock으로 보호한 상태에서, memfunc를 실행하고 결과값 R을 리턴
-
-
+		FastSpinlockGuard syncLock(mLock, true);
+		return *memfunc(args);
 	
 	}
 	
@@ -36,7 +36,8 @@ public:
 		//TODO: this 포인터를 std::shared_ptr<T>형태로 반환.
 		//(HINT: 이 클래스는 std::enable_shared_from_this에서 상속받았다. 그리고 static_pointer_cast 사용)
 
-		return std::shared_ptr<T>((Player*)this); ///< 이렇게 하면 안될걸???
+		return static_pointer_cast(this->shared_from_this())
+		//return std::shared_ptr<T>((Player*)this); ///< 이렇게 하면 안될걸???
 	}
 
 private:
@@ -52,6 +53,6 @@ void DoSyncAfter(uint32_t after, T instance, F memfunc, Args&&... args)
 	static_assert(true == std::is_convertible<T, std::shared_ptr<SyncExecutable>>::value, "T should be shared_ptr SyncExecutable");
 
 	//TODO: instance의 memfunc를 bind로 묶어서 LTimer->PushTimerJob() 수행
-	LTimer->PushTimerJob()
+	LTimer->PushTimerJob(instance, std::bind(memfunc, args), after);
 	
 }
