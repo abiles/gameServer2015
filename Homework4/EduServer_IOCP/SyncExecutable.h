@@ -60,6 +60,6 @@ void DoSyncAfter(uint32_t after, T instance, F memfunc, Args&&... args)
 	static_assert(true == std::is_convertible<T, std::shared_ptr<SyncExecutable>>::value, "T should be shared_ptr SyncExecutable");
 
 	//TODO: instance의 memfunc를 bind로 묶어서 LTimer->PushTimerJob() 수행
-	LTimer->PushTimerJob(instance, std::bind(memfunc, args), after);
+	LTimer->PushTimerJob(instance, std::bind(&T::memfunc, args), after);
 	
 }
