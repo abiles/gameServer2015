@@ -17,7 +17,10 @@ public:
 	{
 		static_assert(true == std::is_convertible<T, SyncExecutable>::value, "T should be derived from SyncExecutable");
 
+		EnterLock();
 		//TODO: mLock으로 보호한 상태에서, memfunc를 실행하고 결과값 R을 리턴
+
+
 	
 	}
 	

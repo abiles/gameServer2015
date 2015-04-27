@@ -82,7 +82,7 @@ void FastSpinlock::EnterReadLock()
 
 		// WRITE_MAKS거나 WRITE_FLAG라면
 		// if문을 통과하지 못한다.
-		if (InterlockedAdd(&mLockFlag, 1) & LF_WRITE_MASK == 0)
+		if (InterlockedIncrement(&mLockFlag) & LF_WRITE_MASK == 0)
 		{
 			return;
 		}
@@ -96,7 +96,7 @@ void FastSpinlock::EnterReadLock()
 void FastSpinlock::LeaveReadLock()
 {
 	//TODO: mLockFlag 처리 
-	InterlockedAdd(&mLockFlag, -1);
+	InterlockedDecrement(&mLockFlag);
 	
 
 	if (mLockOrder != LO_DONT_CARE)
