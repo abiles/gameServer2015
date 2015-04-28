@@ -22,7 +22,7 @@ void LockOrderChecker::Push(FastSpinlock* lock)
 
 		//lock 간의 우선순위 체크 방법은?
 		//FastSpinLock과는 friend class라서 이렇게 접근 가능
-		CRASH_ASSERT(mLockStack[mStackTopPos]->mLockOrder > lock->mLockOrder);
+		CRASH_ASSERT(mLockStack[mStackTopPos - 1]->mLockOrder < lock->mLockOrder);
 	}
 
 	mLockStack[mStackTopPos++] = lock;
@@ -35,7 +35,7 @@ void LockOrderChecker::Pop(FastSpinlock* lock)
 	CRASH_ASSERT(mStackTopPos > 0);
 	
 	//TODO: 당연히 최근에 push했던 녀석이랑 같은지 체크.. 틀리면 CRASH_ASSERT
-	CRASH_ASSERT(mLockStack[mStackTopPos] == lock);
+	CRASH_ASSERT(mLockStack[mStackTopPos - 1] == lock);
 
 	mLockStack[--mStackTopPos] = nullptr;
 

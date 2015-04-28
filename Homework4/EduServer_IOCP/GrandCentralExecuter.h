@@ -21,9 +21,8 @@ public:
 		{
 			//TODO: 이미 누군가 작업중이면 어떻게?
 
-			// lock-free 알고리즘을 생각해보면 
-			// 하나가 실행하고 있으면 하나는 포기하니까
-			return;
+			// Queue에 넣어놔서 나중에 할 수 있게 
+			mCentralTaskQueue.push(task);
 			
 		}
 		else
@@ -47,10 +46,9 @@ public:
 					//TODO: task를 수행하고 mRemainTaskCount를 하나 감소 
 					// mRemainTaskCount가 0이면 break;
 					task();
-					--mRemainTaskCount;
-
-					if (mRemainTaskCount <= 0)
+					if (InterlockedDecrement64(&mRemainTaskCount) == 0)
 						break;
+
 				}
 			}
 		}
