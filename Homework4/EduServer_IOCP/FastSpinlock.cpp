@@ -82,13 +82,13 @@ void FastSpinlock::EnterReadLock()
 
 		// WRITE_MAKS거나 WRITE_FLAG라면
 		// if문을 통과하지 못한다.
-		if ((InterlockedIncrement(&mLockFlag)) & LF_WRITE_MASK == 0)
+		if ((InterlockedIncrement(&mLockFlag)) & LF_WRITE_MASK == 0) ///# 뭔가 이상하지 않은가? 어떻게 바꿔야할까?
 		{
 			return;
 		}
 
 
-		InterlockedAdd(&mLockFlag, -1);
+		InterlockedAdd(&mLockFlag, -1); ///# InterlockedDecrement(&mLockFlag);
 		
 	}
 }

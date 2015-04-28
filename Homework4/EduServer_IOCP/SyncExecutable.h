@@ -47,6 +47,9 @@ public:
 
 		return std::shared_ptr<T>(std::static_pointer_cast<T>(shared_from_this()));
 		//return std::shared_ptr<T>((Player*)this); ///< 이렇게 하면 안될걸???
+
+		///# 왜 쓸데없이 복사 생성? 
+		/// 걍 이렇게 return std::static_pointer_cast<T>(shared_from_this());
 	}
 
 private:

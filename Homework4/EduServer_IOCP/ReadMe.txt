@@ -8,7 +8,7 @@ Timer, DoSync, LockOrder(TLS 사용), RWLock (FastSpinLock을 수정)
 Simple lock-free dispatcher (GCE)
 
   - TODO 검색해서 구현
-  - 숨겨진(?) 버그 수정 -> 버그 수정 부분이 있다면 표시할 것
+  - 숨겨진(?) 버그 수정 -> 버그 수정 부분이 있다면 표시할 것 ///# 버그 부분은 못찾았군 ㅎㅎ 과제로 ㄱㄱ예정
 
 
 *참고: 이 프로그램이 동작하는 시나리오
