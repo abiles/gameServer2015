@@ -29,12 +29,6 @@ public:
 		{
 			/// 처음 진입한 놈이 책임지고 다해주자 -.-;
 
-
-			// mRemainTaskCount > 1 이것을 앞에서 체크한다
-			// 그런데 Queue에 담아서 처리한다?
-			// 무조건 1개의 task만이 if문을 통과하는 것이 보장이 안된다?
-			// 무조건 1개면 while 없이 task만 실행해줘도 될것같은데
-			// 왜일까?
 			
 			mCentralTaskQueue.push(task);
 			
