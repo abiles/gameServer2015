@@ -65,6 +65,9 @@
     <ClInclude Include="ThreadLocal.h">
       <Filter>Main</Filter>
     </ClInclude>
+    <ClInclude Include="SQLTest.h">
+      <Filter>Main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
