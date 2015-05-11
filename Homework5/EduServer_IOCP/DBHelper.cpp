@@ -39,7 +39,7 @@ bool DbHelper::Initialize(const wchar_t* connInfoStr, int workerThreadCount)
 
 	if (mSqlConnPool)
 	{
-		delete mSqlConnPool;
+		delete mSqlConnPool; ///# 어허... 위험.. 이건 배열인데.. 그리고 굳이 delete할 필요가?
 	}
 
 	mSqlConnPool = new SQL_CONN[mDbWorkerThreadCount];
@@ -79,6 +79,9 @@ bool DbHelper::Initialize(const wchar_t* connInfoStr, int workerThreadCount)
 			NULL,
 			&resultLen,
 			SQL_DRIVER_NOPROMPT);
+
+		///# 이렇게 SQLRETURN ret = SQLDriverConnect(mSqlConnPool[i].mSqlHdbc, NULL, (SQLWCHAR*)connInfoStr, (SQLSMALLINT)wcslen(connInfoStr), NULL, 0, &resultLen, SQL_DRIVER_NOPROMPT);
+
 
 		if (SQL_SUCCESS != ret && SQL_SUCCESS_WITH_INFO != ret)
 		{
@@ -284,7 +287,9 @@ void DbHelper::BindResultColumnText(wchar_t* text, size_t count)
 {
 	SQLLEN len = 0;
 	//todo: wchar_t*형 결과 컬럼 바인딩
-	SQLRETURN ret = SQLBindCol(mCurrentSqlHstmt, mCurrentResultCol++, SQL_C_WCHAR, text, count, &len);
+	///# 아래처럼.. SQLRETURN ret = SQLBindCol(mCurrentSqlHstmt, mCurrentResultCol++, SQL_C_WCHAR, text, count, &len);
+	SQLRETURN ret = SQLBindCol(mCurrentSqlHstmt, mCurrentResultCol++, SQL_C_WCHAR, text, count * 2, &len);
+
 
 	if (SQL_SUCCESS != ret && SQL_SUCCESS_WITH_INFO != ret)
 	{
