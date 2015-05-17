@@ -23,6 +23,8 @@ public:
 	void RequestUpdateValidation(bool isValid);
 	void ResponseUpdateValidation(bool isValid);
 
+	int  GetPlayerID() const { return mPlayerId; }
+
 private:
 
 	void PlayerReset();

@@ -161,6 +161,7 @@ void ClientSession::AcceptCompletion()
 void ClientSession::OnDisconnect(DisconnectReason dr)
 {
 	TRACE_THIS;
+	mPlayer.TestDeletePlayerData(mPlayer.GetPlayerID());
 
 	printf_s("[DEBUG] Client Disconnected: Reason=%d IP=%s, PORT=%d \n", dr, inet_ntoa(mClientAddr.sin_addr), ntohs(mClientAddr.sin_port));
 }
