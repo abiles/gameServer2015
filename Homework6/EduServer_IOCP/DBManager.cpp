@@ -85,4 +85,5 @@ void DBManager::PostDatabsaseRequest(DatabaseJobContext* dbContext)
 {
 	//todo: PQCS를 이용하여 dbContext를 mDbCompletionPort에 보내기
 	PostQueuedCompletionStatus(mDbCompletionPort, 0, CK_DB_REQUEST, reinterpret_cast<LPOVERLAPPED>(dbContext));
+	///# error 처리 왜 안하노? ㅎㅎ
 }

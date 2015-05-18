@@ -40,7 +40,7 @@ void MakeDump(EXCEPTION_POINTERS* e)
 		GetCurrentProcess(),
 		GetCurrentProcessId(),
 		hFile,
-		MiniDumpNormal,
+		MiniDumpNormal, ///# 가능하면 풀 메모리 남기는걸로..
 		&exceptionInfo,
 		NULL,
 		NULL);
@@ -74,11 +74,22 @@ LONG WINAPI ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 			do
 			{
 				//todo: 내 프로세스 내의 스레드중 나 자신 스레드만 빼고 멈추게..
-				if (te32.th32ThreadID != myThreadId)
-				{
-					SuspendThread(OpenThread(READ_CONTROL, FALSE, te32.th32ThreadID));
-				}
+// 				if (te32.th32ThreadID != myThreadId) 
+// 				{
+// 					SuspendThread(OpenThread(READ_CONTROL, FALSE, te32.th32ThreadID));
+// 				}
 				
+				///# 아래와 크게 다른점 2가지는?
+
+				/// 내 프로세스 내의 스레드중 나 자신 스레드만 빼고 멈추게..
+				if (te32.th32OwnerProcessID == myProcessId && te32.th32ThreadID != myThreadId)
+				{
+					HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, te32.th32ThreadID);
+					if (hThread)
+					{
+						SuspendThread(hThread);
+					}
+				}
 
 			} while (Thread32Next(hThreadSnap, &te32));
 

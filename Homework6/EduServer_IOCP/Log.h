@@ -126,9 +126,10 @@ namespace LoggerUtil
 		__int64 index = _InterlockedIncrement64(&gCurrentLogIndex) - 1;
 		
 		//todo: gLogEvents에 LogEvent정보 남기기
-		gLogEvents[index % MAX_LOG_SIZE].mThreadId = GetCurrentThreadId();
-		gLogEvents[index % MAX_LOG_SIZE].mMessage = msg;
-		gLogEvents[index % MAX_LOG_SIZE].mAdditionalInfo = info;
+		///# power of 2라고 한 이유는, 요게 되기 때문: index = index & (MAX_LOG_SIZE - 1); 
+		gLogEvents[index].mThreadId = GetCurrentThreadId(); ///# LWorkerThreadId; 내가 알고 있는 스레드 넘버를 남기는게 맞겠지?
+		gLogEvents[index].mMessage = msg;
+		gLogEvents[index].mAdditionalInfo = info;
 
 	}
 

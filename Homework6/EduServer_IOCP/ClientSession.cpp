@@ -145,6 +145,7 @@ void ClientSession::AcceptCompletion()
 		printf_s("[DEBUG] PreRecv error: %d\n", GetLastError());
 	}
 
+	///# 잉? 플레이어 생성도 여기서 하고 로드도 여기서 하면 테스트가 잘 되는가?  두가지 다 하고 싶으면 현욱이처럼 생성 성공시에 load하는걸로 해야지..
 
 	//TEST: 요놈의 위치는 원래 C_LOGIN 핸들링 할 때 해야하는거지만 지금은 접속 완료 시점에서 테스트 ㄱㄱ
 	mPlayer.TestCreatePlayerData(_T("KSY"));
