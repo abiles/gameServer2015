@@ -31,7 +31,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	srand((unsigned)time(NULL));
 	LThreadType = THREAD_MAIN;
 
-	MAX_CONNECTION = 10;
+	MAX_CONNECTION = 200;
 	strcpy_s(CONNECT_ADDR, "10.73.44.30");
 	CONNECT_PORT = 41022;
 
