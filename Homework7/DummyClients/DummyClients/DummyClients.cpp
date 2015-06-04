@@ -31,8 +31,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	srand((unsigned)time(NULL));
 	LThreadType = THREAD_MAIN;
 
-	MAX_CONNECTION = 200;
-	strcpy_s(CONNECT_ADDR, "10.73.44.30");
+	MAX_CONNECTION = 20;
+	strcpy_s(CONNECT_ADDR, "127.0.0.1");
 	CONNECT_PORT = 41022;
 
 	if ( argc < 2 )
